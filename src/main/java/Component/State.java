@@ -1,46 +1,35 @@
 package Component;
 
-import java.util.HashSet;
-import java.util.Set;
+import java.util.HashMap;
+
+/*
+ * Author: Ilja Winkler
+ * E-Mail: iljawinkler@googlemail.com
+ * GitHub: winkleri
+ *
+ * Class description: An object representing a node to be traversed inside an automaton.
+ * An active automaton is always inside a given state. States can either be starting states, regular states or final states
+ */
 
 public class State {
-    private final HashSet<Transition> transitions;
-    private static int counter = 0;
+    private final HashMap<Character, Transition> transitions;
     private final String name;
-    //unique identifier
-    private final int id;
 
     public State(String name) {
         this.name = name;
-        this.transitions = new HashSet<Transition>();
-        this.id = ++counter;
+        this.transitions = new HashMap<>();
     }
 
-    //accessors
-    public String getName() {
-        return name;
-    }
-    public HashSet<Transition> getTransitions() {
-        return new HashSet<>(Set.copyOf(transitions));
+    public void addTransition(final Character character, final Transition transition) {
+        if(character == null) throw new NoSuchCharacterException("An invalid character was tried to be added to a transition.", new IllegalArgumentException("Character was null"));
+        //TODO: handle exception gracefully
+
+        // if(transition == null) throw new IllegalArgumentException("An invalid target state was tried to be added to a transition", new IllegalArgumentException("State was null"));
+        transitions.putIfAbsent(character, transition);
     }
 
-    /**
-     * Adds a transition between the current state and another state. The state the method is called upon
-     * is automatically deemed the source state.
-     * @param transition to be added to the state
-     * @param target is the state that the transition points to
-     */
-    public void addTransition(Transition transition, State target) {
-        if(transition == null || target == null) throw new IllegalArgumentException("Illegal parameters. State or transition cannot be null");
-        //check if transition already exists
-        if(transitions.contains(transition))  {
-            System.err.println("Component.Transition already exists!");
-            return;
-        }
-        //add transition to set to avoid duplicate edge objects
-        transitions.add(transition);
-        //set fields of transition to properly encapsulate source/target relationship
-        transition.setSource(this);
-        transition.setTarget(target);
+    public HashMap<Character, Transition> getTransitions() {
+        return transitions;
     }
+
 }

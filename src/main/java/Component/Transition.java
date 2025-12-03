@@ -2,32 +2,64 @@ package Component;
 
 import java.util.HashSet;
 
+/*
+ * Author: Ilja Winkler
+ * E-Mail: iljawinkler@googlemail.com
+ * GitHub: winkleri
+ *
+ * Class description: An arc pointing from one source state to one target state.
+ * Characters are defined as resources that get consumed when traversing said arc.
+ */
+
 public class Transition {
     private final String name;
-    private final HashSet<String> symbols;
+    private final HashSet<Character> alphabetSubset;
     private State source;
     private State target;
 
-    private Transition(String name, State source, State target) {
+    public Transition(String name, State source, State target) {
         this.name = name;
         this.source = source;
         this.target = target;
-        this.symbols = new HashSet<>();
-    }
-
-    public Transition(String name) {
-        this(name, null, null);
+        this.alphabetSubset = new HashSet<>();
     }
 
     //accessors
     public String getName() { return this.name; }
     public State getSource() { return this.source; }
     public State getTarget() { return this.target; }
-    public HashSet<String> getSymbols() { return this.symbols; }
+    public HashSet<Character> getAlphabetSubset() { return this.alphabetSubset; }
 
     //mutators
-    public void setSource(State source) { this.source = source; }
-    public void setTarget(State target) { this.target = target; }
+    public void setSource(State source) {
+        if(source == null) {
+            throw new NoSuchStateException("Deletion of states is only possible via the deleteTransition() method!",
+                    new IllegalTraversalException(
+                            String.format("source was %s", source)));
+        }
+
+        this.source = source;
+    }
+    public void setTarget(State target) {
+        if(target == null) {
+            throw new NoSuchStateException("Deletion of states is only possible via the deleteTransition() method!",
+                    new IllegalTraversalException(
+                            String.format("source was %s", target)));
+        }
+        this.target = target;
+    }
+
+    /**
+     * Deletes all necessary information about a state and resolves any existing dependencies to avoid conflicts
+     */
+    public void deleteTransition() {
+        alphabetSubset.forEach((character) -> {
+            source.getTransitions().remove(character);
+        });
+        this.source = null;
+        this.target = null;
+        this.alphabetSubset.clear();
+    }
 
     /**
      * Returns a boolean value stating if the source state and target state are identical
